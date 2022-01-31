@@ -3,25 +3,26 @@
 var path = Path.Combine(Environment.CurrentDirectory, "data");
 var commands = File.ReadAllLines(path).Select(x => Command.Parse(x));
 
-int pos = 0, depth = 0;
+int pos = 0, depth = 0, aim = 0;
 
 foreach (var command in commands)
 {
     switch (command.Cmd)
     {
-        case "forward":
-            {
-                pos += command.Value;
-                break;
-            }
         case "up":
             {
-                depth -= command.Value;
+                aim -= command.Value;
                 break;
             }
         case "down":
             {
-                depth += command.Value;
+                aim += command.Value;
+                break;
+            }
+        case "forward":
+            {
+                pos += command.Value;
+                depth += aim * command.Value;
                 break;
             }
         default:
@@ -29,7 +30,7 @@ foreach (var command in commands)
     }
 }
 
-Console.WriteLine($"Final pos {pos} and depth {depth}, result {pos*depth}");
+Console.WriteLine($"Final pos {pos} and depth {depth}, result {pos * depth}");
 
 
 class Command
