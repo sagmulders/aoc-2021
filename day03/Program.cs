@@ -3,42 +3,19 @@
 var path = Path.Combine(Environment.CurrentDirectory, "data");
 var lines = File.ReadAllLines(path);
 
-// sizing 
-var x = lines.First().Length;
-var y = lines.Count();
+var diagnostics = lines.Select(x => Convert.ToInt32(x, 2));
+var count = diagnostics.Count();
+var width = 12;
 
-Console.WriteLine($"width {x} length {y}");
+int gamma = 0, epsilon = 0;
 
-var data = new int[y, x];
-int row = 0;
-
-// parse matrix
-foreach (var line in lines)
+for (var i = width - 1; i >= 0; i--)
 {
-    int pos = 0;
-    foreach (var c in line.ToCharArray())
-    {
-        data[row, pos] = int.Parse(c.ToString());
-        pos++;
-    }
+    var d = diagnostics.Where(x => (x & (1 << i)) == (1 << i)).Count();
 
-    row++;
+    gamma += ((d / Convert.ToDouble(count)) > .5) ? 1 << i : 0;
+    epsilon += ((d / Convert.ToDouble(count)) < .5) ? 1 << i : 0;
 }
+var powerConsumption = gamma * epsilon;
 
-//var gamma = Enumerable.Range(0, x).ToArray();
-string gamma = "", epsilon = "";
-for (var i = 0; i < x; i++)
-{
-    var t = Enumerable.Range(0, y).Select(x => data[x, i]).ToArray();
-    var zeros = t.Where(x => x == 0).Count();
-    var ones = t.Where(x => x == 1).Count();
-
-    //gamma[i] = zeros > ones ? 0 : 1;
-    gamma += (zeros > ones ? "0" : "1");
-    epsilon += (zeros < ones ? "0" : "1");
-}
-
-var gammaValue = Convert.ToInt32(gamma, 2);
-var epsilonValue = Convert.ToInt32(epsilon, 2);
-
-Console.WriteLine($"Gamma: {gammaValue}, Epsilon: {epsilonValue}. Power: {gammaValue * epsilonValue}");
+Console.WriteLine($"Gamma {gamma} epsilon {epsilon} power {powerConsumption}");
