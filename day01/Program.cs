@@ -1,25 +1,45 @@
 ﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
 
 var path = Path.Combine(Environment.CurrentDirectory, "data");
-Console.WriteLine(path);
-
-var data = File.ReadAllLines(path);
-Console.WriteLine($"Numbre of lines: {data.Length}");
+var data = File.ReadAllLines(path).Select(x => int.Parse(x));
 
 var prev = 0;
 var increments = 0;
 
-foreach (var line in data)
+foreach (var value in data)
 {
-    int value = int.Parse(line);
-
     if (prev != 0)
     {
-        if (value>prev) increments++;
+        if (value > prev) increments++;
     }
 
     prev = value;
 }
 
 Console.WriteLine($"Increments: {increments}");
+
+Console.WriteLine("## three-measure sliding window ##");
+
+var tm = new List<int>();
+
+for (int i = 0; i < data.Count(); i++)
+{
+    var v = data.Skip(i).Take(3).Sum();
+    Console.WriteLine($"Sum {i+1} is {v}");
+    tm.Add(v);
+}
+
+prev=0;
+increments=0;
+
+foreach (var value in tm)
+{
+    if (prev != 0)
+    {
+        if (value > prev) increments++;
+    }
+
+    prev = value;
+}
+
+Console.WriteLine($"Three-measure increments: {increments}");
