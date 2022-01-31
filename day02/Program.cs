@@ -3,40 +3,49 @@
 var path = Path.Combine(Environment.CurrentDirectory, "data");
 var commands = File.ReadAllLines(path).Select(x => Command.Parse(x));
 
-int pos = 0, depth = 0, aim = 0;
+var state = new State();
 
-foreach (var command in commands)
+commands.ToList().ForEach(x => x.Apply(state));
+
+Console.WriteLine($"Final pos {state.Pos} and depth {state.Depth}, result {state.Pos * state.Depth}");
+
+class State
 {
-    switch (command.Cmd)
-    {
-        case "up":
-            {
-                aim -= command.Value;
-                break;
-            }
-        case "down":
-            {
-                aim += command.Value;
-                break;
-            }
-        case "forward":
-            {
-                pos += command.Value;
-                depth += aim * command.Value;
-                break;
-            }
-        default:
-            break;
-    }
+    public int Pos { get; set; }
+    public int Depth { get; set; }
+    public int Aim { get; set; }
 }
-
-Console.WriteLine($"Final pos {pos} and depth {depth}, result {pos * depth}");
 
 
 class Command
 {
     public string Cmd { get; set; }
     public int Value { get; set; }
+
+    public void Apply(State state)
+    {
+        switch (Cmd)
+        {
+            case "up":
+                {
+                    state.Aim -= Value;
+                    break;
+                }
+            case "down":
+                {
+                    state.Aim += Value;
+                    break;
+                }
+            case "forward":
+                {
+                    state.Pos += Value;
+                    state.Depth += state.Aim * Value;
+                    break;
+                }
+            default:
+                break;
+        }
+    }
 
     public static Command Parse(string value)
     {
