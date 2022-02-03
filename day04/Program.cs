@@ -22,21 +22,28 @@ while (true)
 
 Console.WriteLine($"{cards.Count()} cards");
 
+BingoCard lastCard = null;
 foreach (var number in numbers)
 {
     Console.WriteLine($"Number drawn {number}");
     cards.ForEach(x => x.Drawn(number));
 
-    var winner = cards.Where(x => x.HasWon());
-    if (winner.Any())
-    {
-        var w = winner.Single();
+    var left = cards.Where(x => !x.HasBingo());
+    Console.WriteLine($"{left.Count()} left");
 
-        Console.WriteLine($"We have a winner: {w.Id} with final {number} and score {w.CalculateScore(number)}");
+    if (left.Count() == 1)
+    {
+        lastCard = left.Single();
+    }
+
+    if (lastCard != null && lastCard.HasBingo())
+    {
+        // we have a winner!
+        Console.WriteLine($"Last winner {lastCard.Id} with score {lastCard.CalculateScore(number)}");
+
         break;
     }
 }
-
 
 
 Console.WriteLine("done");
@@ -45,6 +52,8 @@ class BingoCard
 {
     int size;
     int id;
+
+    bool hasBingo;
 
     public BingoCard(int id, int size, int[] numbers)
     {
@@ -74,8 +83,11 @@ class BingoCard
 
     public Cell[,] Card { get; set; }
 
-    public bool HasWon()
+    public bool HasBingo()
     {
+        if (hasBingo)
+            return true;
+
         for (int i = 0; i < size; i++)
         {
             // check row
@@ -93,7 +105,10 @@ class BingoCard
             var fullcol = col.All(x => x.Checked);
 
             if (fullrow || fullcol)
+            {
+                hasBingo = true;
                 return true;
+            }
             else
                 continue;
         }
@@ -103,6 +118,9 @@ class BingoCard
 
     public void Drawn(int number)
     {
+        if (hasBingo)
+            return;
+
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
